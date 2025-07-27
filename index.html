@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เกมลูกบอลเสริมสร้างความจำ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(118, 75, 162, 0.1);
+            border-radius: 15px;
+        }
+
+        .ball {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ball::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 30%;
+            width: 30%;
+            height: 30%;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: rotate(-45deg);
+        }
+
+        .ball:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .ball.highlight {
+            animation: pulse 0.6s ease-in-out;
+            transform: scale(1.2);
+        }
+
+        .ball.correct {
+            animation: bounce 0.5s ease-in-out;
+        }
+
+        .ball.wrong {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1.2); }
+            50% { transform: scale(1.3); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+            color: #2d3436;
+            box-shadow: 0 5px 15px rgba(255, 234, 167, 0.4);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 234, 167, 0.6);
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .message.success {
+            background: linear-gradient(135deg, #00b894, #00a085);
+            color: white;
+        }
+
+        .message.error {
+            background: linear-gradient(135deg, #e17055, #d63031);
+            color: white;
+        }
+
+        .message.info {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+        }
+
+        .difficulty-selector {
+            margin-bottom: 20px;
+        }
+
+        .difficulty-selector label {
+            margin-right: 15px;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        .difficulty-selector select {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: 2px solid #ddd;
+            font-size: 16px;
+            background: white;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🏀 เกมลูกบอลเสริมสร้างความจำ</h1>
+        
+        <div class="difficulty-selector">
+            <label for="difficulty">ระดับความยาก:</label>
+            <select id="difficulty">
+                <option value="easy">ง่าย (3 ลูก)</option>
+                <option value="medium" selected>ปานกลาง (4 ลูก)</option>
+                <option value="hard">ยาก (5 ลูก)</option>
+            </select>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="game-info">
+            <div class="info-item">
+                <div class="info-label">คะแนน</div>
+                <div class="info-value" id="score">0</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">ระดับ</div>
+                <div class="info-value" id="level">1</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">ชีวิต</div>
+                <div class="info-value" id="lives">❤️❤️❤️</div>
+            </div>
+        </div>
+
+        <div class="game-board" id="gameBoard"></div>
+
+        <div class="controls">
+            <button class="btn-primary" id="startBtn">เริ่มเกม</button>
+            <button class="btn-secondary" id="showSequenceBtn" disabled>ดูลำดับอีกครั้ง</button>
+        </div>
+
+        <div class="message info" id="message">
+            กดปุ่ม "เริ่มเกม" เพื่อเริ่มต้น<br>
+            จดจำลำดับของลูกบอลที่กะพริบ แล้วคลิกตามลำดับ
+        </div>
+    </div>
+
+    <script>
+        class MemoryBallGame {
+            constructor() {
+                this.colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#e67e22', '#1abc9c', '#34495e'];
+                this.sequence = [];
+                this.playerSequence = [];
+                this.score = 0;
+                this.level = 1;
+                this.lives = 3;
+                this.isShowingSequence = false;
+                this.isPlayerTurn = false;
+                this.difficulty = 'medium';
+                this.sequenceLength = 4;
+                
+                this.initializeGame();
+                this.bindEvents();
+            }
+
+            initializeGame() {
+                this.createBalls();
+                this.updateDisplay();
+            }
+
+            bindEvents() {
+                document.getElementById('startBtn').addEventListener('click', () => this.startNewRound());
+                document.getElementById('showSequenceBtn').addEventListener('click', () => this.showSequence());
+                document.getElementById('difficulty').addEventListener('change', (e) => this.changeDifficulty(e.target.value));
+            }
+
+            changeDifficulty(difficulty) {
+                this.difficulty = difficulty;
+                switch(difficulty) {
+                    case 'easy': this.sequenceLength = 3; break;
+                    case 'medium': this.sequenceLength = 4; break;
+                    case 'hard': this.sequenceLength = 5; break;
+                }
+                this.resetGame();
+            }
+
+            createBalls() {
+                const gameBoard = document.getElementById('gameBoard');
+                gameBoard.innerHTML = '';
+                
+                for (let i = 0; i < 8; i++) {
+                    const ball = document.createElement('div');
+                    ball.className = 'ball';
+                    ball.style.backgroundColor = this.colors[i];
+                    ball.textContent = i + 1;
+                    ball.addEventListener('click', () => this.handleBallClick(i));
+                    gameBoard.appendChild(ball);
+                }
+            }
+
+            startNewRound() {
+                if (this.isShowingSequence || this.isPlayerTurn) return;
+                
+                this.generateSequence();
+                this.playerSequence = [];
+                this.showSequence();
+                
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('showSequenceBtn').disabled = false;
+            }
+
+            generateSequence() {
+                this.sequence = [];
+                for (let i = 0; i < this.sequenceLength; i++) {
+                    this.sequence.push(Math.floor(Math.random() * 8));
+                }
+            }
+
+            async showSequence() {
+                if (this.isPlayerTurn) return;
+                
+                this.isShowingSequence = true;
+                const balls = document.querySelectorAll('.ball');
+                
+                this.showMessage('จดจำลำดับของลูกบอล...', 'info');
+                
+                await this.delay(1000);
+                
+                for (let i = 0; i < this.sequence.length; i++) {
+                    const ballIndex = this.sequence[i];
+                    balls[ballIndex].classList.add('highlight');
+                    
+                    await this.delay(800);
+                    balls[ballIndex].classList.remove('highlight');
+                    await this.delay(300);
+                }
+                
+                this.isShowingSequence = false;
+                this.isPlayerTurn = true;
+                this.showMessage('ตอนนี้คลิกลูกบอลตามลำดับที่จำได้', 'info');
+            }
+
+            handleBallClick(ballIndex) {
+                if (!this.isPlayerTurn || this.isShowingSequence) return;
+                
+                const balls = document.querySelectorAll('.ball');
+                this.playerSequence.push(ballIndex);
+                
+                // ตรวจสอบว่าการคลิกถูกต้องหรือไม่
+                const currentStep = this.playerSequence.length - 1;
+                if (this.sequence[currentStep] === ballIndex) {
+                    balls[ballIndex].classList.add('correct');
+                    setTimeout(() => balls[ballIndex].classList.remove('correct'), 500);
+                    
+                    // ตรวจสอบว่าเสร็จสิ้นลำดับหรือยัง
+                    if (this.playerSequence.length === this.sequence.length) {
+                        this.handleCorrectSequence();
+                    }
+                } else {
+                    balls[ballIndex].classList.add('wrong');
+                    setTimeout(() => balls[ballIndex].classList.remove('wrong'), 500);
+                    this.handleWrongSequence();
+                }
+            }
+
+            handleCorrectSequence() {
+                this.score += this.level * 10;
+                this.level++;
+                this.sequenceLength = Math.min(this.sequenceLength + 1, 8);
+                
+                this.showMessage('ยินดีด้วย! ทำได้ถูกต้อง 🎉', 'success');
+                this.updateDisplay();
+                
+                setTimeout(() => {
+                    this.isPlayerTurn = false;
+                    document.getElementById('startBtn').disabled = false;
+                    document.getElementById('showSequenceBtn').disabled = true;
+                }, 2000);
+            }
+
+            handleWrongSequence() {
+                this.lives--;
+                this.updateDisplay();
+                
+                if (this.lives <= 0) {
+                    this.gameOver();
+                } else {
+                    this.showMessage(`ผิด! เหลือชีวิต ${this.lives} ครั้ง`, 'error');
+                    setTimeout(() => {
+                        this.isPlayerTurn = false;
+                        document.getElementById('startBtn').disabled = false;
+                        document.getElementById('showSequenceBtn').disabled = true;
+                    }, 2000);
+                }
+            }
+
+            gameOver() {
+                this.showMessage(`เกมจบ! คะแนนรวม: ${this.score} คะแนน`, 'error');
+                setTimeout(() => this.resetGame(), 3000);
+            }
+
+            resetGame() {
+                this.sequence = [];
+                this.playerSequence = [];
+                this.score = 0;
+                this.level = 1;
+                this.lives = 3;
+                this.isShowingSequence = false;
+                this.isPlayerTurn = false;
+                
+                switch(this.difficulty) {
+                    case 'easy': this.sequenceLength = 3; break;
+                    case 'medium': this.sequenceLength = 4; break;
+                    case 'hard': this.sequenceLength = 5; break;
+                }
+                
+                this.updateDisplay();
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('showSequenceBtn').disabled = true;
+                this.showMessage('กดปุ่ม "เริ่มเกม" เพื่อเริ่มต้น', 'info');
+            }
+
+            updateDisplay() {
+                document.getElementById('score').textContent = this.score;
+                document.getElementById('level').textContent = this.level;
+                
+                const heartsDisplay = '❤️'.repeat(this.lives) + '🖤'.repeat(3 - this.lives);
+                document.getElementById('lives').textContent = heartsDisplay;
+                
+                const progress = Math.min((this.level - 1) * 10, 100);
+                document.getElementById('progressFill').style.width = progress + '%';
+            }
+
+            showMessage(text, type) {
+                const messageEl = document.getElementById('message');
+                messageEl.textContent = text;
+                messageEl.className = `message ${type}`;
+            }
+
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+
+        // เริ่มเกมเมื่อโหลดหน้าเว็บเสร็จ
+        window.addEventListener('load', () => {
+            new MemoryBallGame();
+        });
+    </script>
+</body>
+</html>
